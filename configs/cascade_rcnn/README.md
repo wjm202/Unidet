@@ -9,30 +9,7 @@ An object detector trained on multiple large-scale datasets with a unified label
 > Xingyi Zhou, Vladlen Koltun, Philipp Kr&auml;henb&uuml;hl,        
 > *CVPR 2022 ([arXiv 2102.13086](http://arxiv.org/abs/2102.13086))*         
 
-<!-- Contact: [zhouxy@cs.utexas.edu](mailto:zhouxy@cs.utexas.edu). Any questions or discussions are welcomed!  -->
-
-## Features at a glance
-
-- We trained a unified object detector on 4 large-scale detection datasets: COCO, Objects365, OpenImages, and Mapillary, with state-of-the-art performance on all of them.
-
-- The model predicts class labels in a **learned** unified label space.
-
-- The model can be directly used to test on novel datasets outside the training datasets.
-
-- In this repo, we also provide state-of-the-art baselines for Objects365 and OpenImages.
-
 ## Inference
-        {
-            "name": "Python:cascade_rcnn_infer",
-            "type": "python",
-            "request": "launch",
-            "program": "tools/infer.py",
-            "args": ["-c","configs/cascade_rcnn/cascade_rcnn_r50_fpn_1x_coco.yml","-o","weights=model_torch.pdparams","--infer_img=17790319373_bd19b24cfc_k.jpg"],
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "env": {"CUDA_VISIBLE_DEVICES":"4",
-            },
-        }
 ~~~
 python tools/infer.py -c configs/cascade_rcnn/Partitioned_COI_R50_2x.yml "-o","weights=model_torch.pdparams","--infer_img=17790319373_bd19b24cfc_k.jpg"
 ~~~

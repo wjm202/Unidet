@@ -70,11 +70,7 @@ SplitRCNN:
     datasets: ['coco', 'obj365', 'oid']
     num_classes: [80, 365, 500]
     data_ratio: [1, 1, 1]
-    use_cas: [False, True, True]
-    datasets: ['coco']
-    num_classes: [80]
-    data_ratio: [1]
-    use_cas: [False]  
+    use_cas: [False, True, True] 
     unified_eval: False
     # unified_label_file: 'dataset/label_spaces/learned_mAP.json'
 

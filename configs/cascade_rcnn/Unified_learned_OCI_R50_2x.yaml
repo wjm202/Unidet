@@ -4,7 +4,7 @@ _BASE_: [
   '_base_/cascade_rcnn_r50_fpn.yml',
   '_base_/cascade_fpn_reader.yml',
 ]
-eval_dataset: ['coco_2017_val','objects365_val','oid_val']
+eval_dataset: ['coco_2017_val','obj365_val','oid_val']
 OUTPUT_DIR: "output/UniDet/Unified_learned_OCI_R50_2x"
 weights: output/cascade_rcnn_r50_fpn_1x_coco/model_final
 metric: COCO

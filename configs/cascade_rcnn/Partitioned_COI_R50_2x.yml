@@ -20,17 +20,16 @@ COCOTrainDataset:
 OBJTrainDataset:
   !COCODataSet
   image_dir: 
-  anno_path:   zhiyuan_objv2_val.1@10.json
+  anno_path:   zhiyuan_objv2_val.json
   dataset_dir: dataset/objects365
-  data_fields: ['image', 'gt_bbox', 'gt_class']
-
+  data_fields: ['image', 'gt_bbox', 'gt_class', 'is_crowd']
 OIDTrainDataset:
   !COCODataSet
   image_dir: images/validation
-  anno_path: semi_annotations/oid_challenge_2019_val_expanded.1@1old.json
+  anno_path: annotations/oid_challenge_2019_val.json
   dataset_dir: dataset/oid/
   data_fields: ['image', 'gt_bbox', 'gt_class']
-
+  
 EvalDataset_coco:
   !COCODataSet
   image_dir: val2017

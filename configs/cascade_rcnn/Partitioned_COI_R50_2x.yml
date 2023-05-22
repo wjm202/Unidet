@@ -6,7 +6,7 @@ _BASE_: [
 ]
 find_unused_parameters: True
 snapshot_epoch: 20
-eval_dataset: ['coco_2017_val'] #['coco_2017_val','obj365_val','oid_val']
+eval_dataset: ['coco_2017_val','obj365_val','oid_val']
 OUTPUT_DIR: "output/UniDet/Partitioned_COI_R50_2x"
 weights: output/cascade_rcnn_r50_fpn_1x_coco/model_final
 metric: COCO
@@ -149,7 +149,7 @@ LearningRate:
   schedulers:
   - !PiecewiseDecay
     gamma: 0.1
-    milestones: [8000000, 8000000]
+    milestones: [1200, 1800]
   - !LinearWarmup
     start_factor: 0.00025
     steps: 4000

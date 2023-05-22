@@ -55,7 +55,7 @@ LearningRate:
   schedulers:
   - !PiecewiseDecay
     gamma: 0.1
-    milestones: [8, 11]
+    milestones: [1200, 1800]
   - !LinearWarmup
     start_factor: 1.0
     steps: 0
@@ -85,7 +85,7 @@ CascadeRCNN:
   bbox_post_process: BBoxPostProcess
   multi_dataset:
     enabled: True
-    datasets: ['coco', 'objects365', 'oid']
+    datasets: ['coco', 'obj365', 'oid']
     num_classes: [80, 365, 500]
     data_ratio: [1, 1, 1]
     use_cas: [False, True, True]

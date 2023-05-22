@@ -1,0 +1,164 @@
+_BASE_: [
+  '../runtime.yml',
+  '_base_/optimizer_1x.yml',
+  '_base_/cascade_rcnn_r50_fpn.yml',
+  '_base_/cascade_fpn_reader.yml',
+]
+eval_dataset: ['coco_2017_val','objects365_val','oid_val']
+OUTPUT_DIR: "output/UniDet/Unified_learned_OCI_R50_2x"
+weights: output/cascade_rcnn_r50_fpn_1x_coco/model_final
+metric: COCO
+num_classes: 701
+pretrain_weights: model_torch.pdparams
+COCOTrainDataset:
+  !COCODataSet
+  image_dir: train2017
+  anno_path: semi_annotations/instances_train2017.1@5.json
+  dataset_dir: dataset/coco
+  data_fields: ['image', 'gt_bbox', 'gt_class']
+OBJTrainDataset:
+  !COCODataSet
+  image_dir: 
+  anno_path:   zhiyuan_objv2_val.json
+  dataset_dir: dataset/objects365
+  data_fields: ['image', 'gt_bbox', 'gt_class', 'is_crowd']
+
+OIDTrainDataset:
+  !COCODataSet
+  image_dir: images/validation
+  anno_path: annotations/oid_challenge_2019_val.json
+  dataset_dir: dataset/oid/
+  data_fields: ['image', 'gt_bbox', 'gt_class']
+
+
+EvalDataset_coco:
+  !COCODataSet
+  image_dir: val2017
+  anno_path: annotations/instances_val2017_rand24.json
+  dataset_dir: dataset/coco
+  allow_empty: true
+EvalDataset_obj365:
+  !COCODataSet
+  image_dir: val2017
+  anno_path: annotations/instances_val2017.json
+  dataset_dir: dataset/coco
+  allow_empty: true
+
+TestDataset:
+  name: ImageFolder
+  anno_path: annotations/instances_val2017.json # also support txt (like VOC's label_list.txt)
+  dataset_dir: dataset/coco # if set, anno_path will be 'dataset_dir/anno_path'
+epoch: 12
+
+LearningRate:
+  base_lr: 0.01
+  schedulers:
+  - !PiecewiseDecay
+    gamma: 0.1
+    milestones: [8, 11]
+  - !LinearWarmup
+    start_factor: 1.0
+    steps: 0
+
+OptimizerBuilder:
+  optimizer:
+    momentum: 0.9
+    type: Momentum
+  regularizer:
+    factor: 0.0001
+    type: L2
+  clip_grad_by_value: 1.0
+
+
+
+
+
+architecture: CascadeRCNN
+pretrain_weights: model_torch.pdparams
+unified_label_file: 'dataset/label_spaces/learned_mAP.json'
+CascadeRCNN:
+  backbone: ResNet
+  neck: FPN
+  rpn_head: RPNHead
+  bbox_head: CascadeHead
+  # post process
+  bbox_post_process: BBoxPostProcess
+  multi_dataset:
+    enabled: True
+    datasets: ['coco', 'objects365', 'oid']
+    num_classes: [80, 365, 500]
+    data_ratio: [1, 1, 1]
+    use_cas: [False, True, True]
+    unified_eval: False
+    unified_label_file: 'dataset/label_spaces/learned_mAP.json'
+
+ResNet:
+  # index 0 stands for res2
+  depth: 50
+  variant: 'a'
+  norm_type: bn
+  freeze_at: 0
+  return_idx: [1, 2, 3]
+  num_stages: 4
+
+FPN:
+  out_channel: 256
+  extra_stage: 2
+  has_extra_convs: True
+
+RPNHead:
+  anchor_generator:
+    aspect_ratios: [0.5, 1.0, 2.0]
+    anchor_sizes: [[32, 40.31747359663594, 50.79683366298238], [64, 80.63494719327188, 101.59366732596476], [128, 161.26989438654377, 203.18733465192952], [256, 322.53978877308754, 406.37466930385904], [512, 645.0795775461751, 812.7493386077181]]
+    strides: [8, 16, 32, 64, 128]
+  rpn_target_assign:
+    batch_size_per_im: 256
+    fg_fraction: 0.5
+    negative_overlap: 0.3
+    positive_overlap: 0.7
+    use_random: True
+  train_proposal:
+    min_size: 0.0
+    nms_thresh: 0.7
+    pre_nms_top_n: 2000
+    post_nms_top_n: 2000
+    topk_after_collect: True
+  test_proposal:
+    min_size: 0.0
+    nms_thresh: 0.7
+    pre_nms_top_n: 1000
+    post_nms_top_n: 1000
+
+
+CascadeHead:
+  head: CascadeTwoFCHead
+  roi_extractor:
+    resolution: 7
+    sampling_ratio: 0
+    aligned: True
+  bbox_assigner: BBoxAssigner
+  use_sigmoid_ce: True
+  hierarchy_ignore: True
+  hierarchy_pos_parents: True
+
+BBoxAssigner:
+  batch_size_per_im: 512
+  bg_thresh: 0.5
+  fg_thresh: 0.5
+  fg_fraction: 0.25
+  cascade_iou: [0.5, 0.6, 0.7]
+  use_random: True
+
+CascadeTwoFCHead:
+  out_channel: 1024
+
+BBoxPostProcess:
+  decode:
+    name: RCNNBox
+    prior_box_var: [30.0, 30.0, 15.0, 15.0]
+  nms:
+    name: MultiClassNMS
+    keep_top_k: 100
+    score_threshold: 0.05
+    nms_threshold: 0.5
+    

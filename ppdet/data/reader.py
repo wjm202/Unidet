@@ -928,6 +928,7 @@ class DistributedBatchSampler_u(BatchSampler):
         cas_factors = paddle.concat(cas_factors)
         dataset_weight = paddle.concat(dataset_weight)
         self.weights = dataset_weight * cas_factors
+        self.num_datasets=len(dataset_ratio)
     def __iter__(self):
         num_samples = self.sample_epoch_size
         indices = paddle.multinomial(
@@ -960,7 +961,7 @@ class DistributedBatchSampler_u(BatchSampler):
             indices = _get_indices_by_batch_size(indices)
         assert len(indices) == self.num_samples//self.nranks
         _sample_iter = iter(indices)
-        num_datasets=3
+        num_datasets=self.num_datasets
         self._buckets = [[] for _ in range(2 * num_datasets)]
         for idx in _sample_iter:
             d=self.dataset.roidbs[idx]           
@@ -988,11 +989,12 @@ class DistributedBatchSampler_u(BatchSampler):
         ret = []
         category_freq = defaultdict(int)
         for dataset_dict in dataset_dicts:  # For each image (without repeats)
-            cat_ids = {ann for ann in dataset_dict['gt_class'][0]}
+            cat_ids = {ann for ann in dataset_dict['gt_class'].reshape(-1).tolist()}
+            # print(cat_ids)
             for cat_id in cat_ids:
                 category_freq[cat_id] += 1
         for i, dataset_dict in enumerate(dataset_dicts):
-            cat_ids = {ann for ann in dataset_dict['gt_class'][0]}
+            cat_ids = {ann for ann in dataset_dict['gt_class'].reshape(-1).tolist()}
             ret.append(sum(
                 [1. / (category_freq[cat_id] ** l) for cat_id in cat_ids]))
         return paddle.to_tensor(ret,dtype='float32')

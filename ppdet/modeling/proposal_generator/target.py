@@ -151,8 +151,8 @@ def subsample_labels(labels,
 
     # randomly select positive and negative examples
     negative = negative.cast('int32').flatten()
-    bg_perm = paddle.arange(negative.numel(), dtype='int32')
-    # bg_perm = paddle.randperm(negative.numel(), dtype='int32')
+    #bg_perm = paddle.arange(negative.numel(), dtype='int32')
+    bg_perm = paddle.randperm(negative.numel(), dtype='int32')
     bg_perm = paddle.slice(bg_perm, axes=[0], starts=[0], ends=[bg_num])
     if use_random:
         bg_inds = paddle.gather(negative, bg_perm)
@@ -163,8 +163,8 @@ def subsample_labels(labels,
         return fg_inds, bg_inds
 
     positive = positive.cast('int32').flatten()
-    fg_perm = paddle.arange(positive.numel(), dtype='int32')
-    # fg_perm = paddle.randperm(positive.numel(), dtype='int32')
+    #fg_perm = paddle.arange(positive.numel(), dtype='int32')
+    fg_perm = paddle.randperm(positive.numel(), dtype='int32')
     fg_perm = paddle.slice(fg_perm, axes=[0], starts=[0], ends=[fg_num])
     if use_random:
         fg_inds = paddle.gather(positive, fg_perm)
